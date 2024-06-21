@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 8cdaf9dd34f156540974df8293b5d270
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - ABC Favorit Hangul
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 3917d0921480235459a692e603660766, type: 3}
+  - {fileID: 12800000, guid: a97bbef2901134943aeeb6867ae6d18f, type: 3}
+  - {fileID: 12800000, guid: 69588c978cab91247997f73b092d4289, type: 3}
+  - {fileID: 12800000, guid: 10e51ce53572647468a6fb08f7b6b812, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
