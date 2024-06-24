@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public class ConfigData : MonoBehaviour
+[System.Serializable]
+public class ConfigData
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public int maxPlayerCount = 50;
+    public string QRURL = "bit.ly/3sRSf27";
+    public string serverURL = "https://joy.im-fine.dev"; 
+    public int screenPositionX;
+    public int screenPositionY;
+    public int screenWidth;
+    public int screenHeight;
 }
+
+

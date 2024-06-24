@@ -9,8 +9,7 @@ using TMPro;
 
 public class Client : MonoBehaviour
 {
-    public TMP_InputField IPInput, PortInput, NickInput;
-    public Button button1, button2, button3;
+    public TMP_InputField IPInput, PortInput;
     string clientName;
 
     bool socketReady;
@@ -19,23 +18,25 @@ public class Client : MonoBehaviour
     StreamWriter writer;
     StreamReader reader;
 
+    public Button Button1;
+    public Button Button2;
+    public Button Button3;
+    public Button ConnectedButton;
+
     void Start()
     {
-        button1.onClick.AddListener(OnButton1Click);
-        button2.onClick.AddListener(OnButton2Click);
-        button3.onClick.AddListener(OnButton3Click);
+        Button1.onClick.AddListener(() => SendVideoCommand("VIDEO1"));
+        Button2.onClick.AddListener(() => SendVideoCommand("VIDEO2"));
+        Button3.onClick.AddListener(() => SendVideoCommand("VIDEO3"));
     }
 
     public void ConnectToServer()
     {
-        // 이미 연결되었다면 함수 무시
         if (socketReady) return;
 
-        // 기본 호스트/ 포트번호
         string ip = IPInput.text == "" ? "127.0.0.1" : IPInput.text;
         int port = PortInput.text == "" ? 7777 : int.Parse(PortInput.text);
 
-        // 소켓 생성
         try
         {
             socket = new TcpClient(ip, port);
@@ -43,10 +44,15 @@ public class Client : MonoBehaviour
             writer = new StreamWriter(stream);
             reader = new StreamReader(stream);
             socketReady = true;
+
+            // 연결에 성공하면 안보이게하기
+            IPInput.gameObject.SetActive(false);
+            PortInput.gameObject.SetActive(false);
+            ConnectedButton.gameObject.SetActive(false);
         }
         catch (Exception e)
         {
-            Debug.Log($"Error: {e.Message}");
+            Debug.Log($"소켓에러 : {e.Message}");
         }
     }
 
@@ -64,12 +70,11 @@ public class Client : MonoBehaviour
     {
         if (data == "%NAME")
         {
-            clientName = NickInput.text == "" ? "Guest" + UnityEngine.Random.Range(1000, 10000) : NickInput.text;
             Send($"&NAME|{clientName}");
             return;
         }
 
-        Debug.Log("동영상 실행해조");
+        Debug.Log(data);
     }
 
     void Send(string data)
@@ -80,23 +85,9 @@ public class Client : MonoBehaviour
         writer.Flush();
     }
 
-    void OnButton1Click()
+    void SendVideoCommand(string command)
     {
-        // 비디오를 실행하는 로직 추가
-        Debug.Log("동영상 실행해조");
-        // 예: VideoPlayer.Play();
-    }
-
-    void OnButton2Click()
-    {
-        // 다른 버튼 기능 추가
-        Debug.Log("Button 2 Clicked");
-    }
-
-    void OnButton3Click()
-    {
-        // 다른 버튼 기능 추가
-        Debug.Log("Button 3 Clicked");
+        Send(command);
     }
 
     void OnApplicationQuit()
