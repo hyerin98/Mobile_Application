@@ -7,8 +7,6 @@ using System.IO;
 using System;
 using TMPro;
 using DG.Tweening;
-using UnityEditor;
-using UnityEngine.SceneManagement;
 
 public class Client : MonoBehaviour
 {
@@ -26,83 +24,95 @@ public class Client : MonoBehaviour
     public Button Button3;
     public Button ConnectedButton;
     public Button ExitButton;
+    public TextMeshProUGUI mainText;
     public bool isPressed = false;
-    [SerializeField] CanvasGroup[] textCGs;
-    [SerializeField] int slideYAmount = 40; // y축으로 슬라이드 되는 값
-    [SerializeField] float slideDuration = 1; // 슬라이드 모션 시간
-    [SerializeField] float waitDelayToHide = 0; // 텍스트가 사라지기 전까지 대기 시간
+    public bool isExit = false;
+    public bool isExited = false;
+    [SerializeField] CanvasGroup[] firstCGs;
+    [SerializeField] CanvasGroup[] secondCGs;
+    [SerializeField] int slideYAmount = 100; // y축으로 슬라이드 되는 값
+    [SerializeField] float slideDuration = 0.01f; // 슬라이드 모션 시간
+    [SerializeField] float waitDelayToHide = 0.01f; // 텍스트가 사라지기 전까지 대기 시간
 
-    Sequence textSequence;
+    Sequence sequence1;
+    Sequence sequence2;
+
     void Awake()
     {
-        textSequence = DOTween.Sequence().SetAutoKill(false);
-        for (int i = 0; i < textCGs.Length; i++)
+        sequence1 = DOTween.Sequence().SetAutoKill(false);
+        for (int i = 0; i < firstCGs.Length; i++)
         {
-            Transform textT = textCGs[i].transform;
-            float hideDuration = slideDuration * .1f;
-            float startTime = i * (slideDuration + waitDelayToHide + hideDuration);
+            Transform textT = firstCGs[i].transform;
+            float startTime = i * (slideDuration + waitDelayToHide);
 
-            textSequence.Insert(startTime, textCGs[i].DOFade(1, slideDuration).From(0, true).SetEase(Ease.OutQuart))
+            sequence1.Insert(startTime, firstCGs[i].DOFade(1, slideDuration).From(0, true).SetEase(Ease.OutQuart))
             .Join(textT.DOLocalMoveY(0, slideDuration).From(-slideYAmount, true, true).SetEase(Ease.OutQuart));
-            // .AppendInterval(waitDelayToHide)
-            // .Append(textCGs[i].DOFade(0, hideDuration).SetEase(Ease.OutQuart))
-            // .Join(textT.DOLocalMoveY(slideYAmount, hideDuration).SetRelative().SetEase(Ease.OutQuart));
         }
-        textSequence.Play(); // 시퀀스 실행
+        sequence1.Play(); // 시퀀스 실행
+    }
+
+    void SecondCanvasGroup()
+    {
+        sequence2 = DOTween.Sequence().SetAutoKill(false);
+        for (int i = 0; i < secondCGs.Length; i++)
+        {
+            Transform textT = secondCGs[i].transform;
+            float startTime = i * (slideDuration + waitDelayToHide);
+
+            sequence2.Insert(startTime, secondCGs[i].DOFade(1, slideDuration).From(0, true).SetEase(Ease.OutQuart))
+            .Join(textT.DOLocalMoveY(0, slideDuration).From(-slideYAmount, true, true).SetEase(Ease.OutQuart));
+        }
+        sequence2.Play();
     }
 
     void OnDestroy()
     {
-        textSequence.Kill();
+        sequence1.Kill();
+        sequence2.Kill();
     }
 
     void Start()
     {
+        // 버튼 이벤트 리스너 설정
+        Button1.onClick.AddListener(() =>
         {
-            Button1.onClick.AddListener(() =>
-            {
-                SendVideoCommand("VIDEO1");
-                NotPressedButton();
-                Invoke("CanPressedButton", 8f);
-            });
-            Button2.onClick.AddListener(() =>
-            {
-                SendVideoCommand("VIDEO2");
-                NotPressedButton();
-                Invoke("CanPressedButton", 8f);
-            });
-            Button3.onClick.AddListener(() =>
-            {
-                SendVideoCommand("VIDEO3");
-                NotPressedButton();
-                Invoke("CanPressedButton", 8f);
-            });
-            ExitButton.onClick.AddListener(() => 
-            {
-                SendVideoCommand("EXIT4");
-                CanPressedButton();
-            });
-        }
+            SendVideoCommand("VIDEO2");
+        });
+        Button2.onClick.AddListener(() =>
+        {
+            SendVideoCommand("VIDEO3");
+        });
+        Button3.onClick.AddListener(() =>
+        {
+            SendVideoCommand("VIDEO4");
+        });
+        ExitButton.onClick.AddListener(() =>
+        {
+            isExit = true;
+            SendVideoCommand("EXIT1");
+        });
     }
 
     void NotPressedButton()
     {
+        isPressed = false;
         Button1.interactable = false;
         Button2.interactable = false;
-        Button3.interactable= false;
+        Button3.interactable = false;
     }
 
     void CanPressedButton()
     {
+        isPressed = true;
         Button1.interactable = true;
         Button2.interactable = true;
-        Button3.interactable= true;
+        Button3.interactable = true;
     }
 
     public void ConnectToServer()
     {
         if (socketReady) return;
-        
+
         string ip = IPInput.text == "" ? "192.168.1.12" : IPInput.text;
         int port = PortInput.text == "" ? 7777 : int.Parse(PortInput.text);
 
@@ -113,11 +123,17 @@ public class Client : MonoBehaviour
             writer = new StreamWriter(stream);
             reader = new StreamReader(stream);
             socketReady = true;
-            SceneManager.LoadScene("test 1");
             // 연결에 성공하면 안보이게하기
-            // IPInput.gameObject.SetActive(false);
-            // PortInput.gameObject.SetActive(false);
-            // ConnectedButton.gameObject.SetActive(false);
+            IPInput.gameObject.SetActive(false);
+            PortInput.gameObject.SetActive(false);
+            ConnectedButton.gameObject.SetActive(false);
+
+            SecondCanvasGroup();
+            mainText.gameObject.SetActive(true);
+            Button1.gameObject.SetActive(true);
+            Button2.gameObject.SetActive(true);
+            Button3.gameObject.SetActive(true);
+
         }
         catch (Exception e)
         {
@@ -133,14 +149,47 @@ public class Client : MonoBehaviour
             if (data != null)
                 OnIncomingData(data);
         }
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            PortInput.ActivateInputField();
+            ConnectToServer();
+        }
+
+        if(isPressed && isExit) // 만약 버튼이 활성화되어있고 exit버튼도 같이 눌렀다면
+        {
+            isExited = true; // 어플리케이션 나가지기 true
+        }
+
+        if(!isPressed && isExit) // 만약 버튼이 비활성화되어있고 exit버튼도 같이 눌렀다면
+        {
+            isExited = false; // 어플리케이션 나가지기 false. -> 버튼 활성화로 되어야함
+        }
+
+        if(isExited)
+        {
+            Application.Quit();
+        }
     }
 
-    void OnIncomingData(string data)
+    public void OnIncomingData(string data)
     {
         if (data == "%NAME")
         {
             Send($"&NAME|{clientName}");
             return;
+        }
+
+        if (data == "ENABLE_BUTTONS")
+        {
+            CanPressedButton();
+        }
+        if (data == "DISABLE_BUTTONS")
+        {
+            NotPressedButton();
+        }
+        if(data.StartsWith("VIDEO_FINISHED"))
+        {
+            CanPressedButton();
         }
 
         Debug.Log(data);
@@ -172,5 +221,6 @@ public class Client : MonoBehaviour
         reader.Close();
         socket.Close();
         socketReady = false;
+        Application.Quit();
     }
 }
