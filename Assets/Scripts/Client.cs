@@ -10,7 +10,7 @@ using DG.Tweening;
 
 public class Client : MonoBehaviour
 {
-    public TMP_InputField IPInput, PortInput;
+    public InputField IPInput, PortInput;
     string clientName = "Mobile";
 
     bool socketReady;
@@ -124,9 +124,9 @@ public class Client : MonoBehaviour
             reader = new StreamReader(stream);
             socketReady = true;
             // 연결에 성공하면 안보이게하기
-            IPInput.gameObject.SetActive(false);
-            PortInput.gameObject.SetActive(false);
-            ConnectedButton.gameObject.SetActive(false);
+            IPInput.interactable = false;
+            PortInput.interactable = false;
+            ConnectedButton.interactable = false;
 
             SecondCanvasGroup();
             mainText.gameObject.SetActive(true);
