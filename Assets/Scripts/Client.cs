@@ -137,7 +137,7 @@ public class Client : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log($"소켓에러 : {e.Message}");
+            TraceBox.Log($"소켓에러 : {e.Message}");
         }
     }
 
@@ -168,6 +168,7 @@ public class Client : MonoBehaviour
         if(isExited)
         {
             Application.Quit();
+            OnApplicationQuit(); // 6.28 추가
         }
     }
 
@@ -192,7 +193,7 @@ public class Client : MonoBehaviour
             CanPressedButton();
         }
 
-        Debug.Log(data);
+        TraceBox.Log(data);
     }
 
     void Send(string data)
